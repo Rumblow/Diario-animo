@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Diario de Ánimo - Node.js</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .mood-btn { font-size: 1.8rem; cursor: pointer; transition: transform 0.2s; }
+    .mood-btn:hover { transform: scale(1.15); }
+  </style>
+</head>
+<body>
+
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      
+      <div id="alertContainer"></div>
+
+      <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+          <h2 class="card-title text-center mb-4 text-primary">¿Cómo te sientes hoy?</h2>
+          
+          <form id="moodForm">
+            
+            <div class="mb-4 text-center">
+              <label class="form-label d-block fw-bold mb-3">Puntuación:</label>
+              <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="puntuacion" id="mood1" value="1" required>
+                <label class="btn btn-outline-danger mood-btn" for="mood1">😢<br><small class="fs-6">Mal</small></label>
+
+                <input type="radio" class="btn-check" name="puntuacion" id="mood2" value="2">
+                <label class="btn btn-outline-warning mood-btn" for="mood2">🙁<br><small class="fs-6">Regular</small></label>
+
+                <input type="radio" class="btn-check" name="puntuacion" id="mood3" value="3">
+                <label class="btn btn-outline-info mood-btn" for="mood3">😐<br><small class="fs-6">Normal</small></label>
+
+                <input type="radio" class="btn-check" name="puntuacion" id="mood4" value="4">
+                <label class="btn btn-outline-primary mood-btn" for="mood4">🙂<br><small class="fs-6">Bien</small></label>
+
+                <input type="radio" class="btn-check" name="puntuacion" id="mood5" value="5">
+                <label class="btn btn-outline-success mood-btn" for="mood5">😄<br><small class="fs-6">Genial</small></label>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="estado_animo" class="form-label fw-bold">Emoción principal:</label>
+              <select class="form-select" id="estado_animo" name="estado_animo" required>
+                <option value="" selected disabled>Selecciona una opción...</option>
+                <option value="Feliz">Feliz / Alegre</option>
+                <option value="Tranquilo">Tranquilo / En paz</option>
+                <option value="Motivado">Motivado / Enérgico</option>
+                <option value="Estresado">Estresado / Ansioso</option>
+                <option value="Triste">Triste / Decaído</option>
+                <option value="Cansado">Cansado / Agotado</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="comentario" class="form-label fw-bold">Nota del día (Opcional):</label>
+              <textarea class="form-control" id="comentario" name="comentario" rows="3" placeholder="¿Qué influyó en tu estado de ánimo?"></textarea>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg rounded-3">Guardar Registro</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('moodForm');
+  const alertContainer = document.getElementById('alertContainer');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const data = {
+      puntuacion: formData.get('puntuacion'),
+      estado_animo: formData.get('estado_animo'),
+      comentario: formData.get('comentario')
+    };
+
+    try {
+      const response = await fetch('/api/animo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alertContainer.innerHTML = `
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            ¡Estado de ánimo registrado correctamente!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        `;
+        form.reset();
+      } else {
+        alertContainer.innerHTML = `
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            Error: ${result.error}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        `;
+      }
+    } catch (err) {
+      console.error(err);
+      alertContainer.innerHTML = `
+        <div class="alert alert-danger" role="alert">Error al conectar con el servidor.</div>
+      `;
+    }
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
