@@ -1,28 +1,10 @@
-const sqlite3 = require('sqlite3');
-const { open } = require('sqlite');
-const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 
-let dbInstance = null;
+// Sustituye con las credenciales de tu consola de Supabase 
+// (Project Settings > API)
+const SUPABASE_URL = 'https://siunvpcpsqmckslfhcpb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_B_r3l0RE6RK_TAFYfZTmPg_o-uJ-52i';
 
-async function getDB() {
-  if (!dbInstance) {
-    dbInstance = await open({
-      filename: path.join(__dirname, 'diario.sqlite'),
-      driver: sqlite3.Database
-    });
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Crea la tabla automáticamente si no existe
-    await dbInstance.exec(`
-      CREATE TABLE IF NOT EXISTS registros (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-        estado_animo TEXT NOT NULL,
-        puntuacion INTEGER NOT NULL,
-        comentario TEXT
-      );
-    `);
-  }
-  return dbInstance;
-}
-
-module.exports = getDB;
+module.exports = supabase;
